@@ -1,11 +1,18 @@
 package main.java;
 
-import processing.core.PApplet;
-
 import java.util.ArrayList;
-import java.util.List;
 
 public class Stack extends Movable {
+    public enum StackMode {
+        COMPACT,
+        LEFT,
+        RIGHT,
+        UP,
+        DOWN
+    }
+
+    public static StackMode stackMode = StackMode.COMPACT;
+
     private ArrayList<Card> cards = new ArrayList<>();
 
     private Container buttons = new Container(
@@ -154,11 +161,52 @@ public class Stack extends Movable {
 //        }
 
         // SHOW TOP AT BOTTOM
-        float cardX = x;
-        for (Card card : cards) {
-            card.setPosition(cardX, y);
-            card.show();
-            cardX += 25;
+//        float cardX = x;
+//        for (Card card : cards) {
+//            card.setPosition(cardX, y);
+//            card.show();
+//            cardX += 25;
+//        }
+
+        if (stackMode == StackMode.COMPACT) {
+            Screen scr = Screen.getInstance();
+            if (isMoving()) {
+                scr.stroke(255, 255, 0);
+            } else {
+                scr.stroke(255);
+            }
+            scr.fill(200);
+            scr.rect(x, y, Card.width, Card.height * 1.1f);
+
+            getTop().show();
+        } else if (stackMode == StackMode.UP) {
+            float cardY = y-(size()-1)*15;
+            for (Card card : cards) {
+                card.setPosition(x, cardY);
+                card.show();
+                cardY += 15;
+            }
+        } else if (stackMode == StackMode.DOWN) {
+            float cardY = y+(size()-1)*15;
+            for (Card card : cards) {
+                card.setPosition(x, cardY);
+                card.show();
+                cardY -= 15;
+            }
+        } else if (stackMode == StackMode.LEFT) {
+            float cardX = x-(size()-1)*25;
+            for (Card card : cards) {
+                card.setPosition(cardX, y);
+                card.show();
+                cardX += 25;
+            }
+        } else if (stackMode == StackMode.RIGHT) {
+            float cardX = x+(size()-1)*25;
+            for (Card card : cards) {
+                card.setPosition(cardX, y);
+                card.show();
+                cardX -= 25;
+            }
         }
     }
 
@@ -222,8 +270,8 @@ public class Stack extends Movable {
     @Override
     public boolean onShiftLeftClick() {
         Screen scr = Screen.getInstance();
-        if (!scr.buttons.contains(buttons)) {
-            scr.buttons.add(buttons);
+        if (!scr.ui.contains(buttons)) {
+            scr.ui.add(buttons);
         }
         return super.onShiftLeftClick();
     }
@@ -241,7 +289,7 @@ public class Stack extends Movable {
     public void onMissClick() {
         Screen scr = Screen.getInstance();
         if (!buttons.inBounds(scr.mouseX, scr.mouseY)) {
-            scr.buttons.remove(buttons);
+            scr.ui.remove(buttons);
         }
     }
 

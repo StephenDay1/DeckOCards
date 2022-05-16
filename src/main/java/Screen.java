@@ -1,10 +1,10 @@
 package main.java;
 
 import processing.core.PApplet;
-import processing.core.PImage;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class Screen extends PApplet {
@@ -30,18 +30,84 @@ public class Screen extends PApplet {
         start.startInstance();
     }
 
+    ArrayList<Movable> items = new ArrayList<>();
+    ArrayList<Placeable> ui = new ArrayList<>();
+    Movable moving;
+    Button settingsButton;
+    Button infoButton;
+    Container settings;
+    Container stackSettings;
+    TextBox info;
+
+    private void initUI() {
+        // SETTINGS
+        settingsButton = new Button("Settings", () -> {
+            ui.remove(settingsButton);
+            ui.add(settings);
+        }, width - 80, 10, 70, 30);
+
+        settings = new Container(width - 230, 10, 220, 50,
+                new Button("Change Stack Mode", ()->{
+//                    ui.remove(settings);
+//                    ui.add(settingsButton);
+//                    Stack.stackMode = Stack.StackMode.DOWN;
+                    ui.add(stackSettings);
+                }, width - 220, 20, 200, 30)
+        ) {
+            @Override
+            public void onMissClick() {
+                if (!stackSettings.inBounds(mouseX, mouseY)) {
+                    ui.remove(settings);
+                    ui.add(settingsButton);
+                }
+            }
+        };
+
+        stackSettings = new Container(width - 230, 70, 220, 130,
+                new Button("UP", () -> {
+                    Stack.stackMode = Stack.StackMode.UP;
+                }, width - 220, 80, 95, 30),
+                new Button("DOWN", () -> {
+                    Stack.stackMode = Stack.StackMode.DOWN;
+                }, width - 220, 120, 95, 30),
+                new Button("LEFT", () -> {
+                    Stack.stackMode = Stack.StackMode.LEFT;
+                }, width - 115, 120, 95, 30),
+                new Button("RIGHT", () -> {
+                    Stack.stackMode = Stack.StackMode.RIGHT;
+                }, width - 115, 80, 95, 30),
+                new Button("COMPACT", () -> {
+                    Stack.stackMode = Stack.StackMode.COMPACT;
+                }, width - 220, 160, 200, 30)
+        ) {
+            @Override
+            public void onMissClick() {
+                ui.remove(stackSettings);
+            }
+        };
+
+        // INFO
+        infoButton = new Button("Info", () -> {
+            ui.remove(infoButton);
+            ui.add(info);
+        }, 10, 10, 40, 30);
+
+        info = new TextBox(infoText, 10, 10, 300, 600) {
+            @Override
+            public void onMissClick() {
+                if (!stackSettings.inBounds(mouseX, mouseY)) {
+                    ui.remove(info);
+                    ui.add(infoButton);
+                }
+            }
+        };
+    }
+
     @Override
     public void settings() {
 //        size(800,600);
         fullScreen();
     }
-
-    ArrayList<Movable> items = new ArrayList<>();
-    ArrayList<Placeable> buttons = new ArrayList<>();
-    Movable moving;
-    Button settingsButton;
-    Container settings;
-
 
     @Override
     public void setup() {
@@ -50,6 +116,8 @@ public class Screen extends PApplet {
         textAlign(CENTER, CENTER);
         textSize(15);
         imageMode(CENTER);
+
+        initUI();
 
 //        int y = 10;
 //        for (int suit = 0; suit < 4; suit++) {
@@ -60,38 +128,11 @@ public class Screen extends PApplet {
 //            }
 //            y+=60;
 //        }
-        settingsButton = new Button("Settings", () -> {
-            buttons.remove(settingsButton);
-            buttons.add(settings);
-        }, width - 80, 10, 70, 30);
-
-        settings = new Container(width - 230, 10, 220, 130,
-                new Button("Change Deck Color", ()->{
-                    // TODO
-                    buttons.remove(settings);
-                    buttons.add(settingsButton);
-                }, width - 220, 20, 200, 30),
-                new Button("Change Background Color", ()->{
-                    // TODO
-                    buttons.remove(settings);
-                    buttons.add(settingsButton);
-                }, width - 220, 60, 200, 30),
-                new Button("Change Stack Mode", ()->{
-                    // TODO
-                    buttons.remove(settings);
-                    buttons.add(settingsButton);
-                }, width - 220, 100, 200, 30)
-        ) {
-            @Override
-            public void onMissClick() {
-                buttons.remove(settings);
-                buttons.add(settingsButton);
-            }
-        };
 
 
         items.add(Stack.createDeck(width/2f-Card.width/2f, height/2f-Card.height/2f));
-        buttons.add(settingsButton);
+        ui.add(settingsButton);
+        ui.add(infoButton);
     }
 
     @Override
@@ -103,8 +144,8 @@ public class Screen extends PApplet {
             item.show();
         }
 
-        for (int i = 0; i < buttons.size(); i++) {
-            Placeable button = buttons.get(i);
+        for (int i = 0; i < ui.size(); i++) {
+            Placeable button = ui.get(i);
             button.update();
             button.show();
         }
@@ -150,8 +191,8 @@ public class Screen extends PApplet {
         }
 
 //        if (moving == null) {
-            for (int i = 0; i < buttons.size(); i++) {
-                Placeable button = buttons.get(i);
+            for (int i = ui.size()-1; i >= 0; i--) {
+                Placeable button = ui.get(i);
                 if (moving == null) {
                     if (button.inBounds(mouseX, mouseY)) {
                         button.onLeftClick();
@@ -185,4 +226,27 @@ public class Screen extends PApplet {
             Card.width /= 1.1f;
         }
     }
+
+    String infoText = """
+            Deck O Cards
+            
+            
+            LEFT CLICK to move something
+            
+            CLICK on a card or stack while
+            moving another card or stack to
+            stack them together
+            
+            RIGHT CLICK a card to flip it
+            
+            SHIFT + RIGHT CLICK a stack to
+            flip it
+            
+            RIGHT CLICK a stack to draw a card
+            
+            SHIFT + LEFT CLICK a stack for
+            additional controls
+            
+            
+            Stephen Day""";
 }

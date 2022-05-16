@@ -59,9 +59,4 @@ public class Container extends Placeable {
         }
         return super.onLeftClick();
     }
-
-//    @Override
-//    public void onMissClick() {
-//        Screen.getInstance().buttons.remove(this);
-//    }
 }

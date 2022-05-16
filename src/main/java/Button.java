@@ -2,26 +2,12 @@ package main.java;
 
 import java.awt.*;
 
-public class Button extends Placeable {
-    String text;
+public class Button extends TextBox {
     Runnable execute;
 
-    Color color = new Color(220,220,220);
-
     public Button(String text, Runnable execute, float x, float y, float width, float height) {
-        super(x,y,width,height);
-        this.text = text;
+        super(text, x,y,width,height);
         this.execute = execute;
-    }
-
-    @Override
-    void show() {
-        Screen scr = Screen.getInstance();
-        scr.stroke(180);
-        scr.fill(color.getRed(), color.getGreen(), color.getBlue());
-        scr.rect(x,y,width,height);
-        scr.fill(0);
-        scr.text(text, x+width/2f, y+height/2f);
     }
 
     @Override
