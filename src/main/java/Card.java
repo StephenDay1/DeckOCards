@@ -99,6 +99,10 @@ public class Card extends Movable {
     @Override
     public void show() {
         PApplet scr = Screen.getInstance();
+        scr.noStroke();
+        scr.fill(0,25);
+        scr.rect(x-3, y-3, width+6, height+6);
+        scr.rect(x-2, y-2, width+4, height+4);
         if (isMoving()) {
             scr.stroke(255,255,0);
         } else {
